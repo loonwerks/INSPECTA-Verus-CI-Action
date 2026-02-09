@@ -3,8 +3,6 @@
 echo "sourcepath: $1"
 echo "environment-variables: $2"
 
-runCommand=(/Sireum/bin/sireum hamr sysml codegen)
-
 sourcePath=system/hamr/microkit
 if [[ -n $1 ]]; then
 	sourcePath=$1
@@ -15,8 +13,7 @@ if [[ -n $2 ]]; then
 	environmentVariables=$(echo $2 | jq -r '[to_entries[] | .key + "=" + (.value | tostring)] | join(" ")')
 fi
 
-# SysMLv2 files
-runCommand+=(pushd $GITHUB_WORKSPACE/${sourcePath} \&\& environmentVariables make verus \&\& popd)
+runCommand=(pushd $GITHUB_WORKSPACE/${sourcePath} \&\& ${environmentVariables} make verus \&\& popd)
 
 outputFile="codegen.out"
 if [[ -n $3 ]]; then
