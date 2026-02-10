@@ -3,6 +3,10 @@
 echo "sourcepath: $1"
 echo "environment-variables: $2"
 
+rustup toolchain list
+rustup target list | grep \(installed\)
+rustup component list | grep \(installed\)
+
 sourcePath=system/hamr/microkit
 if [[ -n $1 ]]; then
 	sourcePath=$1
