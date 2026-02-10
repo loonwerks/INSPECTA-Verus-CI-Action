@@ -1,5 +1,5 @@
 # action.yml
-name: 'INSPECTA-Codegeb-CI-Action'
+name: 'INSPECTA-Verus-CI-Action'
 description: 'INSPECTA CI action to generate code from a SySML (v2) model'
 inputs:
   sourcepath:
