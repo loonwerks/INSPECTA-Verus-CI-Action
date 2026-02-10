@@ -12,12 +12,14 @@ if [[ -n $1 ]]; then
 	sourcePath=$1
 fi
 
-environmentVariables=""
 if [[ -n $2 ]]; then
-	environmentVariables=$(echo $2 | jq -r '[to_entries[] | .key + "=" + (.value | tostring)] | join(" ")')
+	for kv in $(echo $2 | jq -r 'to_entries | .[] | .key + "=" + (.value | @sh)'); do
+		echo "setting ${kv}"
+		export $kv;
+	done
 fi
 
-runCommand=(${environmentVariables} make -C $GITHUB_WORKSPACE/${sourcePath} verus)
+runCommand=(make -C $GITHUB_WORKSPACE/${sourcePath} verus)
 
 outputFile="codegen.out"
 if [[ -n $3 ]]; then
