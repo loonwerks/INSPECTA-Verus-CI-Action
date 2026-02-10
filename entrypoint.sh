@@ -13,7 +13,7 @@ if [[ -n $2 ]]; then
 	environmentVariables=$(echo $2 | jq -r '[to_entries[] | .key + "=" + (.value | tostring)] | join(" ")')
 fi
 
-runCommand=(pushd $GITHUB_WORKSPACE/${sourcePath} \&\& ${environmentVariables} make verus \&\& popd)
+runCommand=(${environmentVariables} make -C $GITHUB_WORKSPACE/${sourcePath} verus)
 
 outputFile="codegen.out"
 if [[ -n $3 ]]; then
