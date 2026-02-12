@@ -21,7 +21,7 @@ fi
 
 runCommand=(make -C $GITHUB_WORKSPACE/${sourcePath} verus)
 
-outputFile="codegen.out"
+outputFile="verus.out"
 if [[ -n $3 ]]; then
 	outputFile=$3
 fi
