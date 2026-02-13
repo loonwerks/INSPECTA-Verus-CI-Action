@@ -12,6 +12,10 @@ Path to top level Makefile (expects path string).
 
 JSON-formatted dictionary of environment variables to pass to the make system.
 
+### `outputfile`
+
+Path to output report file (expects filename string).  Default: 'verus-report.json'
+
 ## Outputs
 
 ## `result`

@@ -9,13 +9,15 @@ inputs:
   environment-variable:
     description: 'JSON-formatted dictionary of environment variables to pass to the make system.'
     required: '{}'
+  outputfile:
+    description: 'Path to output report file (expects filename string).'
+    required: false
+    default: 'verus-report.json'
 outputs:
   timestamp:
     description: 'The date/time that the code generation was completed'
   status:
     description: 'Summary of code generation status'
-  status-messages: 
-    description: 'Description of code generation status'
 runs:
   using: 'docker'
   image: 'Dockerfile'

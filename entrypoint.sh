@@ -2,6 +2,7 @@
 
 echo "sourcepath: $1"
 echo "environment-variables: $2"
+echo "outputfile: $3"
 
 rustup toolchain list
 rustup target list | grep \(installed\)
@@ -19,24 +20,36 @@ if [[ -n $2 ]]; then
 	done
 fi
 
-runCommand=(make -C $GITHUB_WORKSPACE/${sourcePath} verus)
-
-outputFile="verus.out"
+outputFile='verus-report.json'
 if [[ -n $3 ]]; then
 	outputFile=$3
 fi
 
-echo "run command: ${runCommand[@]}" 
-
-"${runCommand[@]}" >> "$outputFile"
-EXIT_CODE=$?
+echo "{ }" >> "${outputFile}"
+ACCUM_EXIT_CODE=0
+for makefile in $(find $GITHUB_WORKSPACE/${sourcePath}/crates -name Makefile -exec grep -H verus-json: \{\} \; | cut --delimiter=: -f 1); do
+	echo "found makefile ${makefile}"
+	componentDir=$(dirname ${makefile})
+	componentName=$(basename ${componentDir})
+	runCommand=(make -C ${componentDir} verus-json)
+	echo "run command: ${runCommand[@]}" 
+	"${runCommand[@]}"
+	EXIT_CODE=$?
+	if [ "XX ${EXIT_CODE}" != "XX 0" ]; then
+		ACCUM_EXIT_CODE=${EXIT_CODE}
+	fi
+	tmpFile=$(mktemp)
+	accumTmpFile=$(mktemp)
+	jq "{\"${componentName}\" : .}" ${componentDir}/verus_results.json > "${tmpFile}" \
+		&& jq -s 'add' ${outputFile} ${tmpFile} > "${accumTmpFile}" \
+		&& mv ${accumTmpFile} ${outputFile} &&  rm ${tmpFile}
+done
 
 echo "timestamp=$(date)" >> $GITHUB_OUTPUT
-echo "status=${EXIT_CODE}" >> $GITHUB_OUTPUT
-echo "status-messages=$(cat ${outputFile} | jq -R -s '.')" >> $GITHUB_OUTPUT
+echo "status=${ACCUM_EXIT_CODE}" >> $GITHUB_OUTPUT
 
-echo "exit code: $EXIT_CODE"
-if [ "XX $EXIT_CODE" = "XX 0" ]; then
+echo "exit code: ${ACCUM_EXIT_CODE}"
+if [ "XX ${ACCUM_EXIT_CODE}" = "XX 0" ]; then
 	exit 0
 else
 	exit 1
