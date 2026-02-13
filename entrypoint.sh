@@ -4,6 +4,8 @@ echo "sourcepath: $1"
 echo "environment-variables: $2"
 echo "outputfile: $3"
 
+startTimeStamp=$(date)
+
 rustup toolchain list
 rustup target list | grep \(installed\)
 rustup component list | grep \(installed\)
@@ -44,6 +46,16 @@ for makefile in $(find $GITHUB_WORKSPACE/${sourcePath}/crates -name Makefile -ex
 		&& jq -s 'add' ${outputFile} ${tmpFile} > "${accumTmpFile}" \
 		&& mv ${accumTmpFile} ${outputFile} &&  rm ${tmpFile}
 done
+
+accumTmpFile=$(mktemp)
+jq '{"component-verifications" : .}' ${outputFile} > "${accumTmpFile}" \
+	&& mv "${accumTmpFile}" "${outputFile}"
+
+accumTmpFile=$(mktemp)
+cat ${outputFile} | jq --arg timestamp "${startTimeStamp}" \
+    --arg exitcode ${ACCUM_EXIT_CODE} \
+    '. += $ARGS.named' > "${accumTmpFile}" \
+	&& mv "${accumTmpFile}" "${outputFile}"
 
 echo "timestamp=$(date)" >> $GITHUB_OUTPUT
 echo "status=${ACCUM_EXIT_CODE}" >> $GITHUB_OUTPUT
