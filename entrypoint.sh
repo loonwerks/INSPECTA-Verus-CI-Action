@@ -57,6 +57,9 @@ cat ${outputFile} | jq --arg timestamp "${startTimeStamp}" \
     '. += $ARGS.named' > "${accumTmpFile}" \
 	&& mv "${accumTmpFile}" "${outputFile}"
 
+# mktemp makes file readable only by user, let the workflow user read too
+chmod +r ${outputFile}
+
 echo "timestamp=$(date)" >> $GITHUB_OUTPUT
 echo "status=${ACCUM_EXIT_CODE}" >> $GITHUB_OUTPUT
 
