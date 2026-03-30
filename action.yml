@@ -8,7 +8,8 @@ inputs:
     default: 'system/hamr/microkit'
   environment-variable:
     description: 'JSON-formatted dictionary of environment variables to pass to the make system.'
-    required: '{}'
+    required: false
+    default: '{}'
   outputfile:
     description: 'Path to output report file (expects filename string).'
     required: false
